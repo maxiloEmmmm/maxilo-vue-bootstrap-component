@@ -1,0 +1,8 @@
+./src/
+./public/
+./hot
+./mix-manifest.json
+./index.html
+./package-lock.json
+./.babelrc
+./dist.sh

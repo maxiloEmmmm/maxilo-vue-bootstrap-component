@@ -1,0 +1,7 @@
+node_modules
+public
+src
+hot
+index.html
+mix-manifest.json
+webpack.mix.js

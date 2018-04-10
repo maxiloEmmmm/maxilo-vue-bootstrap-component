@@ -1,0 +1,2 @@
+npx babel core --out-dir dist/core --presets=env,stage-2  --plugins=transform-vue-jsx,transform-runtime &&
+npx babel index.js --out-file dist/index.js  --presets=env,stage-2  --plugins=transform-vue-jsx,transform-runtime
