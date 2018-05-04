@@ -1,11 +1,11 @@
 <template>
     <div :class="[btn ? 'btn-group' : 'dropdown', active ? 'open' : '']">
-        <button class="btn btn-default dropdown-toggle" type="button" @click="toggle($event)">
+        <button class="btn btn-default dropdown-toggle" type="button" @click.stop="toggle()">
             <slot></slot>
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-            <li @click="itemClick($event, index)" v-for="(i, index) in menus" :key="index"><a href="#">{{i.text}}</a></li>
+            <li @click="itemClick($event, index)" v-for="(i, index) in menus" :key="index"><a href="javascript:void(0)">{{i.text}}</a></li>
         </ul>
     </div>
 </template>
@@ -39,15 +39,14 @@ export default {
             default: true
         },
         btn: {
-            default: false
+            default: true
         },
         autoClickHide: {
             default: true
         }
     },
     methods: {
-        toggle(e){
-            this.$utils.tool.stopPropagation(e);
+        toggle(){
             this.active = !this.active;
 
             /* 单例展开: 是否全局只展开一个 */

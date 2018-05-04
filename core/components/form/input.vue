@@ -21,7 +21,3 @@
         }
     };
 </script>
-
-<style lang="scss">
-    @import '../../asset/sass/core.scss';
-</style>

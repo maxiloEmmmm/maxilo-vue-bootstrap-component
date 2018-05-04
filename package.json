@@ -20,9 +20,11 @@
   "author": "maxilo",
   "license": "MIT",
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^10.0.0",
     "animate.css": "^3.6.1",
     "bootstrap": "^3.3.7",
     "cross-env": "^5.1.4",
-    "maxilo-vue": "^1.0.28"
+    "layui-laydate": "^5.0.9",
+    "maxilo-vue": "^1.0.32"
   }
 }

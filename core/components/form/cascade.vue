@@ -1,14 +1,15 @@
 <template>
-    <div :class="['dropdown', active ? 'open' : '', 'mxl-select']">
-        <div class="form-control" @click.stop="toggle()" style="height:auto">
-            <span class="mxl-select-item" style="background:#fff" v-show="checks.length == 0"></span>
+    <div :class="['mxl-select']">
+        <div class="form-control" @click.stop="toggle($event)" style="height:auto" ref="form">
+            <span class="mxl-select-item" style="background:#fff" v-show="checks.length == 0">{{ placeholder }}</span>
             <span class="mxl-select-item" style="background:#fff;color:#000;">{{ view }}</span>
         </div>
-        <ul class="dropdown-menu" @click.stop="()=>{}">
-            <li>
-                <mxl-hierarchy :options="lists" ref="core" @touch="itemClick"></mxl-hierarchy>
-            </li>
-        </ul>
+        <mxl-modal :show="active">
+            <mxl-hierarchy :options="lists" ref="core" @touch="itemClick"></mxl-hierarchy>
+            <div slot="footer">
+                <mxl-btn @click="hide">终了</mxl-btn>
+            </div>
+        </mxl-modal>
     </div>
 </template>
 
@@ -21,36 +22,44 @@ export default {
             active: false,
             lists: [],
             checks: [],
-            caches: {}
+            caches: {},
+            position: {
+                top: 0,
+                left: 0,
+                position: 'fixed',
+                zIndex: 200
+            }
         };
     },
-    mounted(){
+    async mounted(){
         /* 加入全局组件管理器 */
         this.$store.commit('maxilo-bootstrap-component/addDropMenu', {
             uuid: this._uid,
             instance: this
         });
-        this.initBodyToggle();
-        this.fetch();
+        if(this.data.length == 0) {
+            this.lists = [await this.fetch()];
+        }
         this.makeKeyCache(this.data);
+
+        /* 第一级别 */
+        if(this.data.length != 0) {
+            this.lists = [this.data];
+        }
         this.repairValue();
     },
     props: {
+        placeholder: {
+            default: ''
+        },
         data: {
             default(){
-                return [{
-                    label: '无选项'
-                }];
+                return [];
             }
-        },
-        single: {
-            default: true
         },
         autoClickHide: {
             default: true
         },
-        more: false,
-        labelModel: false,
         alias: {
             default(){
                 return {
@@ -79,21 +88,32 @@ export default {
         _alias(){
             return this.$utils._.merge(this.$mxl_bootstrap_component_adapter.alias.form.cascade, this.alias);
         },
-        heightPadding(){
-            return {
-                padding: (!this.more || this.checks.length == 0 ? 6 : 8) +  'px 12px'
-            }; 
-        },
         view(){
             return this.checks.map(v => v[this._alias.label]).join(' ' + this.split + ' ');
         }
     },
+    watch: {
+        value: {
+            deep: true,
+            handler(){
+                this.repairValue();
+            }
+        }
+    },
     methods: {
+        getView(){
+            return this.view;
+        },
+        getViewDetail(){
+            return this.checks.map(v => v[this._alias.label]);
+        },
         async fetch(p = null){
+            /* 从缓存抓取 */
             if(this.caches[p]) {
-                return this.caches[p];
+                return this.caches[p].childs;
             }else {
                 if(!this.url) {
+                    console.log('[maxilo-vue-bootstrap-component - cascade | warning] want more child, but url is not defined, return empty Array.');
                     return [];
                 }
                 let method = this.requestMethod == 'post' ? this.$http.post : this.$http.get;
@@ -107,19 +127,8 @@ export default {
             }
         },
         /* 反转下拉菜单 */
-        toggle(){
+        toggle($event){
             this.active = !this.active;
-
-            /* 单例展开: 是否全局只展开一个 */
-            if(this.active && this.single) {
-                let dropMenus = this.$store.getters['maxilo-bootstrap-component/manager'].dropMenu;
-                /* 关闭其他实例 */
-                Object.keys(dropMenus).forEach(($v) => {
-                    if($v != this._uid){
-                        dropMenus[$v].hide();
-                    }
-                });
-            }
         },
         /* 下拉菜单项点击 */
         async itemClick(current, level){
@@ -129,20 +138,21 @@ export default {
             } 
             let last = current[current.length-1];
             if(last[this._alias.hasChild]) {
-                this.$set(this.lists, level+1, last[this._alias.childs] 
+                this.$set(this.lists, level+1, last[this._alias.childs].length != 0 
                                                     ? last[this._alias.childs] 
                                                     : await this.fetch(last[this._alias.childs]));
+            }else {
+                if(this.autoClickHide) {
+                    this.hide();
+                }
             }
+            let c = this.checks.map(v => v[this._alias.value]);
+            this.$emit('input', c);
+            this.$emit('touch', c);
         },
         /* 多选已选移除 */
         remove($v){
             this.checks = this.checks.filter(v => v != $v);
-        },
-        initBodyToggle(){
-            /* 全局监听失去焦点 */
-            window.addEventListener('click', ($e) => {
-                this.active = false;
-            });
         },
         /* 隐藏下拉 */
         hide(){
@@ -162,7 +172,28 @@ export default {
         async repairValue(){
             /* 等待数据初始化 */
             await this.$nextTick();
-            this.lists = [this.data];
+
+            if(!Array.isArray(this.value)) {
+                this.reset();
+            }else {
+                let tmp = this.value;
+                let len = tmp.length;
+                for(let i = 0; i < len-1; i++) {
+                    this.lists[i+1] = await this.fetch(tmp[i]);
+                }
+
+                tmp = [];
+                this.value.forEach((v, i) => {
+                    if(this.lists[i]) {
+                        let index = this.lists[i].findIndex($v => $v[this._alias.value] == v);
+                        if(index !== -1) {
+                            tmp.push(index);
+                        }
+                    }
+                });
+                this.$refs.core.setActive(tmp);
+                this.checks = this.value.map(v => this.caches[v]);
+            }
         },
         makeKeyCache(data){
             data.forEach(v => {

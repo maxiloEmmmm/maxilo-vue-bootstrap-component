@@ -1,5 +1,5 @@
 <template>
-    <button type="button" :class="['btn', 'btn-' + type, _size]">
+    <button type="button" :class="['btn', 'btn-' + type, _size]" @click="touch">
         <i v-if="icon" :class="icon"></i><slot></slot>
     </button>
 </template>
@@ -10,10 +10,10 @@ export default {
     computed: {
         _size(){
             return {
-                xs: 'btn-group-xs',
+                xs: 'btn-xs',
                 md: '',
-                lg: 'btn-group-lg',
-                sm: 'btn-group-sm',
+                lg: 'btn-lg',
+                sm: 'btn-sm',
             }[this.size];
         }
     },
@@ -26,6 +26,11 @@ export default {
         },
         type: {
             default: 'default'
+        }
+    },
+    methods: {
+        touch(){
+            this.$emit('click');
         }
     }
 };

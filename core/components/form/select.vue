@@ -8,14 +8,14 @@
                 <template v-else>
                     <span>{{ dataKeyCache[checks[0]] }}</span>
                 </template>
-                <span class="mxl-select-item" style="background:#fff" v-show="checks.length == 0"></span>
+                <span class="mxl-select-item" style="background:#fff" v-show="checks.length == 0">{{ placeholder }}</span>
             </div>
             <mxl-btn-group :input="true">
                 <div class="btn btn-default" @click="reset" :style="[heightPadding]">清空</div>
             </mxl-btn-group>
         </mxl-input-group>
         <ul class="dropdown-menu" @click.stop="()=>{}" style="width:100%">
-            <li @click.stop="itemClick(index)" v-for="(i, index) in options" :key="index"><a href="#">{{i[_alias.label]}}</a></li>
+            <li @click.stop="itemClick(index)" v-for="(i, index) in options" :key="index" :style="[checks.includes(i[_alias.value]) ? {background: '#cecece'} : {}]"><a href="#">{{i[_alias.label]}}</a></li>
         </ul>
     </div>
 </template>
@@ -43,6 +43,9 @@ export default {
         this.repairValue();
     },
     props: {
+        placeholder: {
+            default: ''
+        },
         options: {
             default(){
                 return [{
@@ -126,12 +129,12 @@ export default {
 
             /* 触发定向钩子 */
             if(this.options[current]['fn']) {
-                this.options[current]['fn'](this.options[current], current);
+                this.options[current]['fn'](this.options[current], current, this.checks);
             }
 
             /* 触发时间: 没有指定定向钩子 或者 明确指定触发事件 */
             if(this.options[current]['fn'] || this.options[current]['emit']) {
-                this.$emit('touch', this.options[current], current);
+                this.$emit('touch', this.options[current], current, this.checks);
             }
         },
         /* 多选已选移除 */

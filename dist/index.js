@@ -22,6 +22,10 @@ var _manager = require('./core/libs/store/manager');
 
 var _manager2 = _interopRequireDefault(_manager);
 
+var _relation = require('./core/libs/store/relation');
+
+var _relation2 = _interopRequireDefault(_relation);
+
 var _adapter = require('./core/libs/adapter');
 
 var _adapter2 = _interopRequireDefault(_adapter);
@@ -29,6 +33,10 @@ var _adapter2 = _interopRequireDefault(_adapter);
 var _systemAdapter = require('./core/libs/systemAdapter');
 
 var _systemAdapter2 = _interopRequireDefault(_systemAdapter);
+
+var _utils = require('./core/libs/utils');
+
+var _utils2 = _interopRequireDefault(_utils);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61,8 +69,12 @@ function depPre(target) {
 
 _maxiloVue2.default.store.once('maxilo-bootstrap-component', _manager2.default);
 
+_maxiloVue2.default.store.once('maxilo-bootstrap-component', _relation2.default);
+
 _maxiloVue2.default.register(new _adapter2.default());
 
 _maxiloVue2.default.mxl_bootstrap_component_adapter.add(new _systemAdapter2.default());
+
+_maxiloVue2.default.utils.add('mxlvbc', _utils2.default);
 
 exports.default = depPre(_components2.default);

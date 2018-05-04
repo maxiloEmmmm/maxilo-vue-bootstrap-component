@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <div v-for="(row, index) in rows" :key="index" class="row">
+    <div style="display: table;max-width:100%;width:100%;">
+        <div v-for="(row, index) in rows" :key="index" :style="[{display: 'table-row'}]">
             <mxl-render
                 v-for="(group, i) in groups"
                 :key="i"
@@ -29,14 +29,20 @@ export default {
         this.render();
     },
     computed: {
-        cols(){
-            return Math.floor(12 / this.groups);
+        percent(){
+            return Math.floor(100/this.groups) + '%';
         }
     },
     methods: {
         slotRender(h, row, col){
             return h('div', {
-                class: ['col-xs-' + this.cols]
+                style: {
+                    display: 'table-cell',
+                    width: this.percent,
+                    maxWidth: this.percent,
+                    verticalAlign: 'middle'
+                },
+                class: ['mxl-box-rules']
             }, [...this.$utils.tool.slotDeepClone([this.$slots.default.filter(v => v.tag)[this.groups*row+col]], h)]);
         },
         async getRowLength(){
@@ -58,4 +64,13 @@ export default {
     }
 }
 </script>
+
+<style>
+    .mxl-box-rules > * {
+        width: 100%;
+        max-width:100%;
+        word-break: break-all;
+    }
+</style>
+
 

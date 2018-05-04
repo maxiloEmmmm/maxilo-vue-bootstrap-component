@@ -20,12 +20,10 @@ export default {
             overflow: {
                 maxHeight: '200px',
                 overflowY: 'scroll',
-                minWidth: '160px'
+                minWidth: '160px',
             },
             active: []
         };
-    },
-    mounted(){
     },
     props: {
         options: {
@@ -77,6 +75,10 @@ export default {
                 this.active = this.active.slice(0, i+1);
             } 
             this.$emit('touch', this.current, i)
+        },
+        setActive(a){
+            this.active = a;
+            this.$refs.core.render();
         }
     }
 };

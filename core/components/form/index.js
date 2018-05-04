@@ -13,6 +13,12 @@ import select from './select';
 
 import cascade from './cascade';
 
+import date from './date';
+
+import upload from './upload';
+
+import editor from './editor';
+
 export default {
     input,
     inputGroup,
@@ -28,4 +34,10 @@ export default {
     select,
 
     cascade,
+
+    date,
+
+    upload,
+
+    editor
 };

@@ -1,7 +1,7 @@
 <template>
     <div class="has-feedback">
         <slot></slot>
-        <span class="form-control-feedback" aria-hidden="true" :style="[rBtn ? {right:'38px'}:{}]">
+        <span class="form-control-feedback" aria-hidden="true">
             <i :class="coreClass"></i>
         </span>
     </div>
@@ -28,9 +28,6 @@ export default {
             }
         },
         currentStatus: {
-            default: false
-        },
-        rBtn: {
             default: false
         }
     }

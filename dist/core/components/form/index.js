@@ -40,6 +40,22 @@ var _select = require('./select');
 
 var _select2 = _interopRequireDefault(_select);
 
+var _cascade = require('./cascade');
+
+var _cascade2 = _interopRequireDefault(_cascade);
+
+var _date = require('./date');
+
+var _date2 = _interopRequireDefault(_date);
+
+var _upload = require('./upload');
+
+var _upload2 = _interopRequireDefault(_upload);
+
+var _editor = require('./editor');
+
+var _editor2 = _interopRequireDefault(_editor);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
@@ -54,5 +70,13 @@ exports.default = {
     btnGroup: _btnGroup2.default,
     btnToolBar: _btnToolBar2.default,
 
-    select: _select2.default
+    select: _select2.default,
+
+    cascade: _cascade2.default,
+
+    date: _date2.default,
+
+    upload: _upload2.default,
+
+    editor: _editor2.default
 };

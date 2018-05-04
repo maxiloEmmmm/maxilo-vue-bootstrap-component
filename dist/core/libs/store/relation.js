@@ -15,22 +15,16 @@ var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var state = {
-    manager: {
-        dropMenu: {}
-    },
     relations: {}
 };
 
-var getters = {
-    manager: function manager(state) {
-        return state.manager;
-    }
-};
+var getters = {};
 
 var actions = {
-    getRelation: function getRelation(state, type) {
+    getRelation: function getRelation(_ref, type) {
         var _this = this;
 
+        var state = _ref.state;
         return (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
             return _regenerator2.default.wrap(function _callee$(_context) {
                 while (1) {
@@ -67,9 +61,6 @@ var actions = {
 };
 
 var mutations = {
-    addDropMenu: function addDropMenu(state, payload) {
-        state.manager.dropMenu[payload.uuid] = payload.instance;
-    },
     addRelation: function addRelation(state, key, relation) {
         state.relations[key] = relation;
     }

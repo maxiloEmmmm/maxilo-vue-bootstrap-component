@@ -9,6 +9,9 @@ exports.default = function () {
         return {
             form: {
                 select: { label: 'label', value: 'value' }
+            },
+            layout: {
+                hierarchy: {}
             }
         };
     };

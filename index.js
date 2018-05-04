@@ -30,10 +30,15 @@ function depPre(target){
 
 import component from './core/libs/store/manager';
 maxiloVue.store.once('maxilo-bootstrap-component', component);
+import relation from './core/libs/store/relation';
+maxiloVue.store.once('maxilo-bootstrap-component', relation);
 
 import mxlBootstrapComponentAdapter from './core/libs/adapter';
 maxiloVue.register(new mxlBootstrapComponentAdapter);
 import mxlBootstrapComponentSystemAdapter from './core/libs/systemAdapter';
 maxiloVue.mxl_bootstrap_component_adapter.add(new mxlBootstrapComponentSystemAdapter);
+
+import mxlBootstrapComponentUtils from './core/libs/utils';
+maxiloVue.utils.add('mxlvbc', mxlBootstrapComponentUtils);
 
 export default depPre(components)
