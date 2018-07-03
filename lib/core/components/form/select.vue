@@ -178,7 +178,6 @@ export default {
         async reset(){
             this.checks = [];
             this.$emit('input', []);
-            await this.$validator.reset();
             /* 渲染完成后释放控制流 */
             await this.$nextTick();
         },
@@ -194,12 +193,10 @@ export default {
                 this.checks = this.more 
                     ? oks
                     : [oks[0]];
-                await this.$validator.reset();
                 this.$emit('input', this.checks);
             }else {
                 let tmp = this.dataKeyCache[this.value] ? [this.value] : [];
                 this.checks = tmp;
-                await this.$validator.reset();
                 this.$emit('input', tmp);
             }
         }

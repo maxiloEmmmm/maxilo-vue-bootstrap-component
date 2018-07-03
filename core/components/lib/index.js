@@ -1,7 +1,10 @@
-import render from './render';
-import modal from './modal';
-
+import render from './render.vue';
+import modal from './modal.vue';
+import formComponmentErrorTip from './formComponmentErrorTip.vue';
+import alert from './alert.vue';
 export default {
     render,
-    modal
+    modal,
+    formComponmentErrorTip,
+    alert
 };

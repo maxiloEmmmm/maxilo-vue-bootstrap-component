@@ -5,3 +5,4 @@ hot
 index.html
 mix-manifest.json
 webpack.mix.js
+.DS_Store

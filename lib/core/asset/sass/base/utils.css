@@ -1,0 +1,8 @@
+/* bootstrap dropMenu layer */
+.input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group {
+    z-index: inherit;
+}
+
+.mxl-break {
+    word-wrap: break-word;
+}

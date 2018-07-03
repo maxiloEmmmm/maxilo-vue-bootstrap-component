@@ -1,24 +1,9 @@
 <template>
-    <mxl-form-componment-error-tip :validator="$validator" :baseTip="baseTip" ref="tip">
+    <mxl-form-componment-error-tip :validator="$validator" :baseTip="baseTip">
         <template slot="tips">
             <slot name="tips"></slot>
         </template>
-        <mxl-input-status 
-            :currentStatus="!$validator.flags[_random_name] || !$validator.flags[_random_name].validated 
-                ? '' 
-                : (errors.has(_random_name) ? 'error' : 'success')">
-            <input 
-                v-validate="rules" 
-                :name="_random_name" 
-                v-model="ds" 
-                @change="$emit('input', ds)" 
-                :type="type" 
-                :disabled="disabled" 
-                :class="coreClass" 
-                @focus="$refs.tip.showTip()"
-                @blur="$refs.tip.hideTip()"
-                :hidden="type==='hidden'"/>
-        </mxl-input-status>
+        <input v-validate="rules" :name="_random_name" v-model="ds" @change="$emit('input', ds)" :type="type" :disabled="disabled" :class="coreClass" :hidden="type==='hidden'"/>
     </mxl-form-componment-error-tip>
 </template>
 

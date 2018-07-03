@@ -1,25 +1,34 @@
-import input from './input';
-import inputGroup from './inputGroup';
-import inputStatus from './inputStatus';
-import inputBtn from './inputBtn';
+import input from './input.vue';
+import inputGroup from './inputGroup.vue';
+import inputStatus from './inputStatus.vue';
+import inputBtn from './inputBtn.vue';
 
-import dropMenu from './dropMenu';
+import dropMenu from './dropMenu.vue';
 
-import btn from './btn';
-import btnToolBar from './btnToolBar';
-import btnGroup from './btnGroup';
+import btn from './btn.vue';
+import btnToolBar from './btnToolBar.vue';
+import btnGroup from './btnGroup.vue';
 
-import select from './select';
+import select from './select.vue';
 
-import cascade from './cascade';
+import cascade from './cascade.vue';
 
-import date from './date';
+import date from './date.vue';
 
-import upload from './upload';
+import upload from './upload.vue';
 
-import editor from './editor';
+import editor from './editor.vue';
+
+import formContainer from './formContainer.vue';
+
+import formGroup from './formGroup.vue';
+
+import checkbox from './checkbox.vue';
 
 export default {
+    formContainer,
+    formGroup,
+
     input,
     inputGroup,
     inputStatus,
@@ -39,5 +48,7 @@ export default {
 
     upload,
 
-    editor
+    editor,
+
+    checkbox
 };
