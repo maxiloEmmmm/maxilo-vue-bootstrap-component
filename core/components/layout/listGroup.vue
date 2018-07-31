@@ -16,6 +16,12 @@ export default {
             itemLen: 0
         };
     },
+    props: {
+        align: {
+            type: String,
+            default: 'left'
+        }
+    },
     mounted(){
         this.render();
     },
@@ -25,7 +31,10 @@ export default {
             let s = this.$slots.default.filter(v => v.tag)[index];
             if(!s) {return ;}
             return h('li', {
-                class: ['list-group-item']
+                class: ['list-group-item'],
+                style: {
+                    textAlign: this.align
+                }
             }, [...this.$utils.tool.slotDeepClone([s], h)]);
         },
         render(){

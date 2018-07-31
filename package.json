@@ -1,6 +1,6 @@
 {
   "name": "maxilo-vue-bootstrap-component",
-  "version": "1.0.33",
+  "version": "1.0.55",
   "description": "vue component for pc",
   "main": "lib/index.js",
   "scripts": {
@@ -30,6 +30,7 @@
     "font-awesome": "^4.7.0",
     "layui-laydate": "^5.0.9",
     "maxilo-vue": "^1.0.53",
-    "sweetalert": "^2.1.0"
+    "sweetalert": "^2.1.0",
+    "vuejs-paginate": "^1.9.3"
   }
 }

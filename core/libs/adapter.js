@@ -5,6 +5,8 @@ const adapter = function(){
         responseFormat: function(ds){return ds;}
     };
 
+    this.useAlert = false;
+
     this.adapterInstance = [];
 
     /* alias: component level */
@@ -31,7 +33,7 @@ const adapter = function(){
         this.adapterInstance.push(obj);
     }
 
-    this.run = function (vue) {
+    this.run = async function (vue) {
         let len = this.adapterInstance.length;
         for (let i = 0; i < len; i++) {
             let v = this.adapterInstance[i];
@@ -58,6 +60,10 @@ const adapter = function(){
                 return this.adapters;
             }
         });
+
+        if (this.useAlert) {
+            this.app.alert.base = await import('sweetalert');
+        }
     };
 };
 

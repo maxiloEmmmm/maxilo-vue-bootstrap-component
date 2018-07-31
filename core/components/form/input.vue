@@ -11,7 +11,7 @@
                 v-validate="rules" 
                 :name="_random_name" 
                 v-model="ds" 
-                @change="$emit('input', ds)" 
+                @input="$emit('input', ds)" 
                 :type="type" 
                 :disabled="disabled" 
                 :class="coreClass" 
@@ -58,7 +58,7 @@
         methods: {
             async reset(){
                 this.ds = '';
-                this.$emit('change', '');
+                this.$emit('input', '');
                 await this.$nextTick();
             }
         }

@@ -19,15 +19,19 @@ import upload from './upload.vue';
 
 import editor from './editor.vue';
 
+import inlineForm from './inlineForm.vue';
 import formContainer from './formContainer.vue';
 
 import formGroup from './formGroup.vue';
+import inlineFormGroup from './inlineFormGroup.vue';
 
 import checkbox from './checkbox.vue';
 
 export default {
+    inlineForm,
     formContainer,
     formGroup,
+    inlineFormGroup,
 
     input,
     inputGroup,

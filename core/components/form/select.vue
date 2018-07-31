@@ -5,7 +5,7 @@
         </template>
         <div :class="['dropdown', active ? 'open' : '', 'mxl-select']">
             <mxl-input-group>
-                <div class="form-control" @click.stop="toggle()" style="height:auto">
+                <div class="form-control" @click.stop="toggle()" style="height:auto;min-width: 100px;">
                     <template v-if="more">
                         <span v-for="(c, index) in checks" :key="index" class="mxl-select-item"><i class="fa fa-times" @click.stop="remove(c)"></i> | {{ dataKeyCache[c] }}</span>
                     </template>
@@ -15,7 +15,7 @@
                     <span class="mxl-select-item" style="background:#fff" v-show="checks.length == 0">{{ placeholder }}</span>
                 </div>
                 <mxl-btn-group :input="true">
-                    <div class="btn btn-default" @click="reset" :style="[heightPadding]">清空</div>
+                    <div class="btn btn-default" style="border-top-right-radius:4px;border-bottom-right-radius:4px;" @click="reset" :style="[heightPadding]">清空</div>
                 </mxl-btn-group>
             </mxl-input-group>
             <ul class="dropdown-menu" @click.stop="()=>{}" style="width:100%">
@@ -28,7 +28,7 @@
 <script>
 import ruleMix from '../mixs/ruleMix.vue';
 
-export default {
+export default {    
     mixins: [ruleMix],
     name: 'select',
     data(){
@@ -96,6 +96,13 @@ export default {
             deep: true,
             handler(){
                 this.makeKeyCache();
+                this.repairValue();
+            }
+        },
+        value: {
+            deep: true,
+            handler(){
+                this.repairValue();
             }
         }
     },
@@ -121,14 +128,13 @@ export default {
             if(this.more) {
                 if(!this.checks.includes(currentValue)) {
                     this.$set(this.checks, this.checks.length, currentValue);
-                    this.$emit('input', this.checks);
                 }
             }else {
                 if(this.checks[0] != currentValue) {
                     this.$set(this.checks, 0, currentValue);
-                    this.$emit('input', this.checks);
                 }
             }
+            this.input();
 
             /* 自动关闭 */
             if(this.autoClickHide) {
@@ -140,9 +146,8 @@ export default {
                 this.options[current]['fn'](this.options[current], current, this.checks);
             }
 
-            /* 触发时间: 没有指定定向钩子 或者 明确指定触发事件 */
-            if(this.options[current]['fn'] || this.options[current]['emit']) {
-                this.$emit('touch', this.options[current], current, this.checks);
+            if(!this.options[current]['noEmit']) {
+                this.$emit('change', this.getValue());
             }
         },
         /* 多选已选移除 */
@@ -177,17 +182,17 @@ export default {
         /* 重置 */
         async reset(){
             this.checks = [];
-            this.$emit('input', []);
+            this.input();
             await this.$validator.reset();
             /* 渲染完成后释放控制流 */
             await this.$nextTick();
         },
         async repairValue(){
-            /* 等待数据初始化 */
-            await this.$nextTick();
-
             if(Array.isArray(this.value)) {
                 if(this.value.length === 0) {
+                    await this.$validator.reset();
+                    this.checks = [];
+                    this.input();
                     return ;
                 }
                 let oks = this.value.filter((v) => this.dataKeyCache[v]);
@@ -195,13 +200,28 @@ export default {
                     ? oks
                     : [oks[0]];
                 await this.$validator.reset();
-                this.$emit('input', this.checks);
             }else {
                 let tmp = this.dataKeyCache[this.value] ? [this.value] : [];
                 this.checks = tmp;
                 await this.$validator.reset();
-                this.$emit('input', tmp);
             }
+            this.input();
+        },
+        input(){
+            let emit = this.getValue();
+            let eq = false;
+            if(!this.more) {
+                eq = emit === this.value;
+            }else {
+                let tmp = Array.isArray(this.value) ? this.value : (this.value ? [this.value] : []);
+                eq = new Set(tmp.filter(x => !(new Set(emit)).has(x))).size === 0;
+            }
+            if(!eq) {
+                this.$emit('input', emit);
+            }
+        },
+        getValue(){
+            return this.more ? this.checks : (this.checks.length !== 0 ? this.checks[0] : '');
         }
     }
 };

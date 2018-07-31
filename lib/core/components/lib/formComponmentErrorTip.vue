@@ -1,22 +1,26 @@
 <template>
-    <div>
+    <div ref="self" class="mxl-form-componement-error-tip">
         <slot></slot>
-        <slot name="tips"></slot>
-        <transition
+        <transition-group
             enter-active-class="animated bounceIn"
             leave-active-class="animated bounceOut"
         >
-            <template v-if="baseTip && item && ved">
+            <template v-if="item">
                 <p 
                     :class="['text-' + (flags[item.name].validated 
                                             ? (validator.errors.has(item.name) ? 'danger' : 'success') 
                                             : 'muted')
                     ]"
-                    style="margin:0;font-size: 0.1rem;">
+                    style="margin:0.1rem 0 0 0;font-size: 0.1rem;"
+                    v-show="baseTip && ved && _hasError"
+                    key="errorTip">
                     {{ errorMessage }}
                 </p>
             </template>
-        </transition>
+            <div v-show="tipShow" key="helpTip">
+                <slot name="tips"></slot>
+            </div>
+        </transition-group>
     </div>
 </template>
 
@@ -24,7 +28,10 @@
 export default {
     name: 'formComponmentErrorTip',
     data(){
-        return {item: false}
+        return {
+            item: false,
+            tipShow: false
+        }
     },
     props: {
         validator: {
@@ -48,18 +55,62 @@ export default {
         },
         errorMessage(){
             let m = this.validator.errors.first(this.item.name);
-            return m ? m : '非常好!';
+            return m ? m : '';
         },
         ved(){
             return this.flags[this.item.name].validated;
+        },
+        _hasValidated(){
+            if(!this.flags[this.item.name]) {
+                return false;
+            }
+            return this.flags[this.item.name].validated;
+        },
+        _hasError(){
+            return this._hasValidated && this.validator.errors.has(this.item.name);
         }
     },
     watch: {
         validator() {
             this.getItem();
+        },
+        _hasError(){
+            if(this._hasValidated) {
+                this.clo(this.$refs.self, 'form-group', !this._hasError)
+            }else {
+                this.removeClo(this.$refs.self, 'form-group')
+            }
         }
     },
     methods: {
+        showTip(){
+            this.tipShow = true;
+        },
+        hideTip(){
+            this.tipShow = false;
+        },
+        removeClo(node, tag){
+            if(node.parentNode) {
+                if(node.parentNode.className && node.parentNode.className.split(' ').indexOf(tag) !== -1) {
+                    node.parentNode.classList.remove('has-error');
+                    node.parentNode.classList.remove('has-success');
+                    return ;
+                }else {
+                    this.removeClo(node.parentNode, tag);
+                }
+            }
+        },
+        clo(node, tag, success){
+            if(node.parentNode) {
+                if(node.parentNode.className && node.parentNode.className.split(' ').indexOf(tag) !== -1) {
+                    node.parentNode.classList.remove(success ? 'has-error' : 'has-success');
+                    node.parentNode.classList.add(success ? 'has-success' : 'has-error');
+                    return ;
+                }else {
+                    this.clo(node.parentNode, tag, success);
+                }
+            }
+        },
         getMessage(v, key, field){
             let locale = (!this.validator.dictionary.container[this.locale] || !this.validator.dictionary.container[this.locale].messages[key])
                             ? 'en'
@@ -75,3 +126,14 @@ export default {
     }
 };
 </script>
+
+<style>
+    @media (min-width: 768px) {
+        form.form-inline .mxl-form-componement-error-tip {
+            display: inline-block;
+            width: auto;
+            vertical-align: middle;
+        }
+    }
+</style>
+

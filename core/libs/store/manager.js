@@ -12,7 +12,7 @@ const getters = {
 };
 
 const actions = {
-    async getRelation(state, type) {
+    async getRelation({state}, type) {
         if (!state.relations[type]) {
             switch(type) {
                 case 'editor': {

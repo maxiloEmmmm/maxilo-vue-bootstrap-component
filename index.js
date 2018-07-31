@@ -9,7 +9,7 @@ maxiloVue.vue.warnHandler = function(a){
 let pre = 'mxl';
 
 function depPre(target){
-    if (!target.__file && !target._compiled && !target.functional) {
+    if (!target.__file && !target._compiled && !target.functional && !target._scopeId) {
         if (Array.isArray(target)) {
             target.forEach((v, i) => {
                 v = depPre(v);
@@ -39,11 +39,6 @@ maxiloVue.mxl_bootstrap_component_adapter.add(new mxlBootstrapComponentSystemAda
 import mxlBootstrapComponentUtils from './core/libs/utils';
 maxiloVue.utils.add('mxlvbc', mxlBootstrapComponentUtils);
 
-import swal from 'sweetalert';
-Object.defineProperty(maxiloVue.vueFactory.prototype, '$alert', {
-    get: () => {
-        return swal;
-    }
-});
+
 
 export default depPre(components)

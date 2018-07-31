@@ -1,5 +1,5 @@
 <template>
-    <div ref="self">
+    <div ref="self" class="mxl-form-componement-error-tip">
         <slot></slot>
         <transition-group
             enter-active-class="animated bounceIn"
@@ -77,6 +77,8 @@ export default {
         _hasError(){
             if(this._hasValidated) {
                 this.clo(this.$refs.self, 'form-group', !this._hasError)
+            }else {
+                this.removeClo(this.$refs.self, 'form-group')
             }
         }
     },
@@ -86,6 +88,17 @@ export default {
         },
         hideTip(){
             this.tipShow = false;
+        },
+        removeClo(node, tag){
+            if(node.parentNode) {
+                if(node.parentNode.className && node.parentNode.className.split(' ').indexOf(tag) !== -1) {
+                    node.parentNode.classList.remove('has-error');
+                    node.parentNode.classList.remove('has-success');
+                    return ;
+                }else {
+                    this.removeClo(node.parentNode, tag);
+                }
+            }
         },
         clo(node, tag, success){
             if(node.parentNode) {
@@ -113,3 +126,14 @@ export default {
     }
 };
 </script>
+
+<style>
+    @media (min-width: 768px) {
+        form.form-inline .mxl-form-componement-error-tip {
+            display: inline-block;
+            width: auto;
+            vertical-align: middle;
+        }
+    }
+</style>
+
