@@ -3,22 +3,19 @@
         <template slot="tips">
             <slot name="tips"></slot>
         </template>
-        <mxl-input-status 
-            :currentStatus="!$validator.flags[_random_name] || !$validator.flags[_random_name].validated 
-                ? '' 
-                : (errors.has(_random_name) ? 'error' : 'success')">
-            <input 
-                v-validate="rules" 
-                :name="_random_name" 
-                v-model="ds" 
-                @input="$emit('input', ds)" 
-                :type="type" 
-                :disabled="disabled" 
-                :class="coreClass" 
-                @focus="$refs.tip.showTip()"
-                @blur="$refs.tip.hideTip()"
-                :hidden="type==='hidden'"/>
-        </mxl-input-status>
+        <input 
+            v-validate="rules" 
+            :name="_random_name" 
+            v-model="ds" 
+            @input="$emit('input', ds)" 
+            :type="type" 
+            :disabled="disabled" 
+            :class="coreClass" 
+            :placeholder="placeholder"
+            :readonly="readonly"
+            @focus="() => {$refs.tip.showTip();$emit('focus')}"
+            @blur="() => {$refs.tip.hideTip();$emit('blur')}"
+            :hidden="type==='hidden'"/>
     </mxl-form-componment-error-tip>
 </template>
 
@@ -40,18 +37,33 @@
             disabled: {
                 default: false
             },
+            readonly: {
+                default: false
+            },
+            static: {
+                default: false
+            },
             value: {
                 default: ''
+            },
+            placeholder: {
+
             }
         },
         watch: {
-            value() {
-                this.ds = this.value;
+            value: {
+                handler() {
+                    this.ds = this.value;
+                },
+                immediate: true
             }
         },
         computed: {
             coreClass(){
-                var domClass =['form-control'];
+                let currentStatus = !this.$validator.flags[this._random_name] || !this.$validator.flags[this._random_name].validated 
+                ? '' 
+                : (this.errors.has(this._random_name) ? 'is-invalid' : 'is-valid');
+                let domClass =[currentStatus, this.static ? 'form-control-plaintext' : 'form-control'];
                 return domClass;
             }
         },

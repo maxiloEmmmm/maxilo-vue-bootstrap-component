@@ -3,6 +3,12 @@ export default {
     props: {
         value: {
             default: ''
+        },
+        height: {
+            default: false
+        },
+        disabled: {
+            default: false
         }
     },
     methods: {
@@ -11,6 +17,9 @@ export default {
         },
         setData(){
             alert('请重写富文本编辑器填充数据函数.');
+        },
+        setDisabled(){
+            alert('请重写富文本编辑器禁用函数.');
         },
         async reset(){
             this.content = '';
@@ -30,6 +39,11 @@ export default {
                 this.setData(this.value);
             },
             immediate: true
+        },
+        disabled: {
+            handler(){
+                this.setDisabled();
+            }
         }
     }
 };

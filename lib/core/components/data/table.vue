@@ -1,137 +1,133 @@
 <template>
-    <table class="table table-hover table-bordered table-condensed">
-        <!-- 表头 -->
-        <thead v-show="!isCard">
-            <!-- 表头渲染 -->
-            <tr class="active">
-                <!-- 存在展开 或 复选 -->
-                <th :style="_th_tool_style"></th>
-                <!-- 表头列渲染 -->
-                <th v-for="(th, thIndex) in _show_ths" :key="thIndex"
-                    :style="th._style">
-                    <template v-if="th.thSlot">
-                        <mxl-render :render="h => fieldRender(th.thSlot, th, {})"></mxl-render>
-                    </template>
-                    <template v-else>
-                        {{ th.title }}
-                    </template>
-                    <!-- sort -->
-                    <div style="display: inline-block" v-if="th.sort">
-                        <div>
-                            <i :class="['fa', 'fa-caret-up', 'hand', 'noActiveSort', {activeSort: sort[0] === th.field && sort[1] === 'asc'}]" aria-hidden="true" @click="toSort(th.field, 'asc')"></i>
-                        </div>
-                        <div>
-                            <i :class="['fa', 'fa-caret-down', 'hand', 'noActiveSort', {activeSort: sort[0] === th.field && sort[1] === 'desc'}]" aria-hidden="true" @click="toSort(th.field, 'desc')"></i>
-                        </div>
-                    </div>
-                </th>
-            </tr>
-        </thead>
-        <!-- 表 -->
-        <tbody>
-            <tr v-show="loading">
-                <td :colspan="_th_len" class="text-center">
-                    <mxl-loading ref="treeLoading" v-model="loading">加载数据中...</mxl-loading>
-                </td>
-            </tr>
-            <tr v-show="!loading && !_has_viewer">
-                <td :colspan="_th_len" class="text-center">
-                    <mxl-alert class="mxl-table-no-data-alert">暂无数据</mxl-alert>
-                </td>
-            </tr>
-            <!-- 行渲染 -->
-            <template v-for="(view, viewIndex) in viewer">
-                <tr :key="viewIndex + '_show_th'">
+    <div class="mxl-table-wrapper">
+        <div class="__edit-area">
+            <mxl-btn :class="newRowBtnClass" @click="editNewRow">新的一行</mxl-btn>
+        </div>
+        <table class="table table-hover table-condensed table-bordered" :class="tableClass"  ref="loading" v-mxl-loading:w10="loading" mxl-loading-text="加载数据中...">
+            <!-- 表头 -->
+            <thead v-show="!isCard">
+                <!-- 表头渲染 -->
+                <tr class="active" style="cursor: pointer">
                     <!-- 存在展开 或 复选 -->
-                    <td>
-                        <i 
-                            :class="[
-                                'fa', 
-                                'fa-chevron-' + (hideTrShow[viewIndex] ? 'down' : 'right')
-                            ]" 
-                            style="cursor: pointer"
-                            aria-hidden="true"
-                            :title="'点击' + (hideTrShow[viewIndex] ? '收起' : '展开') + ' yo~'"
-                            @click="toggleHide(viewIndex)"
-                            v-show="_needHelpTh">
-                        </i>
-                        <input type="checkbox" v-model="checks" :value="view[token]">
-                    </td>
-                    <!-- 列渲染 -->
-                    <td v-for="(th, thIndex) in _show_ths" :key="thIndex" 
-                        :style="th._style">
-                        <template v-if="th.tdSlot">
-                            <mxl-render :render="h => fieldRender(th.tdSlot, th, view)"></mxl-render>
+                    <th :style="_th_tool_style" v-if="_needHelpTh"></th>
+                    <!-- 表头列渲染 -->
+                    <th v-for="(th, thIndex) in _show_ths" :key="thIndex"
+                        @click="() => !th.sort ? '' : toSort(th.field, sort[0] === th.field ? (sort[1] == 'desc' ? 'asc' : 'desc') : 'asc')"
+                        :style="th._style" :class="[th.sort ? 'mxl-table-th-sort' : '', sort[0] === th.field ? (sort[1] === 'asc' ? 'mxl-table-sort-asc' : 'mxl-table-sort-desc') : '']">
+                        <template v-if="th.thSlot">
+                            <mxl-render :render="h => fieldRender(th.thSlot, th, {})"></mxl-render>
                         </template>
                         <template v-else>
-                            {{ view[th.field] }}
+                            {{ th.title }}
                         </template>
-                    </td>
+                    </th>
                 </tr>
-                <!-- 处理隐藏数据列 -->
-                <tr v-if="_hasHideThs" v-show="hideTrShow[viewIndex]" :key="viewIndex + '_hide_th'">
-                    <td :colspan="_th_len">
-                        <!-- 自定义渲染 -->
-                        <template v-if="tdHideSlot">
-                            <mxl-render :render="h => fieldRender(tdHideSlot, _hide_ths, view)"></mxl-render>
-                        </template>
-                        <!-- 规规矩矩来 -->
-                        <template v-else>
-                            <dl class="dl-horizontal">
-                                <template v-for="(th, thIndex) in _hide_ths">
-                                    <!-- 标题渲染 -->
-                                    <dt :key="thIndex + '_dt'">
-                                        <template v-if="th.thSlot">
-                                            <mxl-render :render="h => fieldRender(th.thSlot, th, view)"></mxl-render>
-                                        </template>
-                                        <template v-else>
-                                            {{ th.title }}
-                                        </template>
-                                        <!-- sort -->
-                                        <template v-if="th.sort">
-                                            <i :class="['fa', 'fa-caret-up', 'hand', 'noActiveSort', {activeSort: sort[0] === th.field && sort[1] === 'asc'}]" aria-hidden="true" @click="toSort(th.field, 'asc')"></i>
-                                            <i :class="['fa', 'fa-caret-down', 'hand', 'noActiveSort', {activeSort: sort[0] === th.field && sort[1] === 'desc'}]" aria-hidden="true" @click="toSort(th.field, 'desc')"></i>
-                                        </template>
-                                    </dt>
-                                    <!-- 数据渲染 -->
-                                    <dd :key="thIndex + '_dd'">
-                                        <template v-if="th.tdSlot">
-                                            <mxl-render :render="h => fieldRender(th.tdSlot, th, view)"></mxl-render>
-                                        </template>
-                                        <template v-else>
-                                            {{ view[th.field] }}
-                                        </template>
-                                    </dd>
+            </thead>
+            <!-- 表 -->
+            <tbody class="mxl-table-tbody">
+                <!-- 行渲染 -->
+                <template v-for="(view, viewIndex) in viewer">
+                    <tr :key="viewIndex + '_show_th'" @click.="">
+                        <!-- 存在展开 或 复选 -->
+                        <td v-if="_needHelpTh">
+                            <i 
+                                :class="[
+                                    'fa', 
+                                    'fa-chevron-' + (hideTrShow[viewIndex] ? 'down' : 'right')
+                                ]" 
+                                style="cursor: pointer"
+                                aria-hidden="true"
+                                :title="'点击' + (hideTrShow[viewIndex] ? '收起' : '展开') + ' yo~'"
+                                @click="toggleHide(viewIndex)"
+                                v-if="_hasHideThs">
+                            </i>
+                            <input v-if="useCheck" type="checkbox" v-model="checks" :value="view[token]">
+                        </td>
+                        <!-- 列渲染 -->
+                        <td v-for="(th, thIndex) in _show_ths" :key="thIndex" :style="th._style">
+                            <!-- fix ds[viewIndex] not view: v-model need data not computed. -->
+                            <componment :is="view.__td_wrapper_tpl && th.type ? 'a-popover' : 'div'" style="width:100%;height:100%;">
+                                <template v-if="th.tdSlot">
+                                    <mxl-render :render="h => fieldRender(th.tdSlot, th, view, viewIndex, thIndex)"></mxl-render>
                                 </template>
-                                <dt></dt>
-                                <dd class="text-right"><mxl-btn size="xs" @click="toggleHide(viewIndex)">收起</mxl-btn></dd>
-                            </dl>
-                        </template>
+                                <template v-else>
+                                    {{ view[th.field] }}
+                                </template>
+                                <div slot="content" v-if="view.__td_wrapper_tpl && th.type">
+                                    <component :is="'mxl-'+th.type" v-model="ds[viewIndex][th.field]"></component>
+                                </div>
+                            </componment>
+                        </td>
+                    </tr>
+                    <!-- 处理隐藏数据列 -->
+                    <tr v-if="_hasHideThs" v-show="hideTrShow[viewIndex]" :key="viewIndex + '_hide_th'">
+                        <td :colspan="_th_len">
+                            <!-- 自定义渲染 -->
+                            <template v-if="tdHideSlot">
+                                <mxl-render :render="h => fieldRender(tdHideSlot, _hide_ths, view, viewIndex)"></mxl-render>
+                            </template>
+                            <!-- 规规矩矩来 -->
+                            <template v-else>
+                                <dl class="dl-horizontal">
+                                    <template v-for="(th, thIndex) in _hide_ths">
+                                        <!-- 标题渲染 -->
+                                        <dt :key="thIndex + '_dt'">
+                                            <template v-if="th.thSlot">
+                                                <mxl-render :render="h => fieldRender(th.thSlot, th, view, viewIndex)"></mxl-render>
+                                            </template>
+                                            <template v-else>
+                                                {{ th.title }}
+                                            </template>
+                                            <!-- sort -->
+                                            <template v-if="th.sort">
+                                                <i :class="['fa', 'fa-caret-up', 'hand', 'noActiveSort', {activeSort: sort[0] === th.field && sort[1] === 'asc'}]" aria-hidden="true" @click="toSort(th.field, 'asc')"></i>
+                                                <i :class="['fa', 'fa-caret-down', 'hand', 'noActiveSort', {activeSort: sort[0] === th.field && sort[1] === 'desc'}]" aria-hidden="true" @click="toSort(th.field, 'desc')"></i>
+                                            </template>
+                                        </dt>
+                                        <!-- 数据渲染 -->
+                                        <dd :key="thIndex + '_dd'">
+                                            <template v-if="th.tdSlot">
+                                                <mxl-render :render="h => fieldRender(th.tdSlot, th, view, viewIndex)"></mxl-render>
+                                            </template>
+                                            <template v-else>
+                                                {{ view[th.field] }}
+                                            </template>
+                                        </dd>
+                                    </template>
+                                    <dt></dt>
+                                    <dd class="text-right"><mxl-btn size="xs" @click="toggleHide(viewIndex)">收起</mxl-btn></dd>
+                                </dl>
+                            </template>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+            <!-- 表脚 - - -->
+            <tfoot>
+                <tr>
+                    <td :colspan="_th_len" class="text-center">
+                        <mxl-alert v-show="!loading && !_has_viewer" class="mxl-table-no-data-alert">暂无数据</mxl-alert>
+                        <!-- 分页 -->
+                        <mxl-paginate
+                            v-if="dsTotal"
+                            :page-count="_pageCount"
+                            :prev-text="'上一页'"
+                            :next-text="'下一页'"
+                            :initial-page="currentPage-1"
+                            :click-handler="changePage"
+                            containerClass="pagination pagination-sm mxl-table-pagination-no-m"
+                            :page-link-class="isCard ? 'mxl-table-pagination-xs page-link' : 'page-link'"
+                            :prev-link-class="isCard ? 'mxl-table-pagination-xs page-link' : 'page-link'"
+                            page-class="page-item"
+                            prev-class="page-item"
+                            next-class="page-item"
+                            :next-link-class="isCard ? 'mxl-table-pagination-xs page-link' : 'page-link'">
+                        </mxl-paginate>
                     </td>
                 </tr>
-            </template>
-        </tbody>
-        <!-- 表脚 - - -->
-        <tfoot>
-            <tr>
-                <td :colspan="_th_len" class="text-center">
-                    <!-- 分页 -->
-                    <mxl-paginate
-                        v-if="dsTotal"
-                        :page-count="_pageCount"
-                        :prev-text="'Prev'"
-                        :next-text="'Next'"
-                        :initial-page="currentPage-1"
-                        :click-handler="changePage"
-                        containerClass="pagination pagination-sm mxl-table-pagination-no-m"
-                        :page-link-class="isCard ? 'mxl-table-pagination-xs' : ''"
-                        :prev-link-class="isCard ? 'mxl-table-pagination-xs' : ''"
-                        :next-link-class="isCard ? 'mxl-table-pagination-xs' : ''">
-                    </mxl-paginate>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+            </tfoot>
+        </table>
+    </div>
 </template>
 
 <script>
@@ -157,37 +153,29 @@ export default {
             currentPage: 1,
             /* 数据等待状态 */
             loading: false,
-            token: this.$utils.tool.random('table')
+            token: this.$utils.tool.random('table'),
+            edit_item: ''
         };
     },
     computed: {
         /* 展示数据 */
         viewer(){
-            let len = (this.currentPage - 1) * this.listItemSize;
-            let ds = this.ds.slice(len, len + this.listItemSize);
+            let ds = [];
+            if(!this.url) {
+                let len = (this.currentPage - 1) * this._list_item_size;
+                ds = this.ds.slice(len, len + this._list_item_size);
+            }else {
+                ds = this.ds;
+            }
             return ds;
         },
         _has_viewer(){
             return this.viewer.length !== 0;
         },
-        /* 最终别名 */
-        _alias(){
-            let baseAlias = {
-                align: 'align',
-                title: 'title',
-                primaryKey: 'id'
-            };
-            Object.keys(baseAlias).forEach(v => {
-                if(this.alias[v]) {
-                    baseAlias[v] = this.alias[v];
-                }
-            });
-            return baseAlias;
-        },
         /* 表头基础样式 */
         _th_style(){
             return {
-                background: '#fff'
+                //background: '#fff'
             };
         },
         /* 工具列样式 */
@@ -200,7 +188,8 @@ export default {
         _ths(){
             return this.ths.map(v => {
                 let tmp = {
-                    textAlign: v[this._alias.align] ? v[this._alias.align] : 'center',
+                    textAlign: v.align ? v.align : 'center',
+                    position: 'relative'
                 };
                 if(v.width !== undefined) {
                     tmp.width = v.width;
@@ -224,19 +213,22 @@ export default {
         },
         /* 是否添加帮助列: 复选 及 展开隐藏开关 */
         _needHelpTh(){
-            return this._hasHideThs;
+            return this._hasHideThs || this.useCheck;
         },
         /* 表头数 */
         _th_len(){
-            return this._show_ths.length + 1
+            return this._show_ths.length + (this._needHelpTh ? 1 : 0)
         },
         /* 是否存在已展开 */
         _hasOpening(){
             return Object.keys(this.hideTrShow).filter(v => this.hideTrShow[v]).length !== 0;
         },
+        _list_item_size(){
+            return this.is_edit ? this.dsTotal : this.listItemSize
+        },
         /* 根据显示条数计算页数 */
         _pageCount(){
-            return Math.ceil(this.dsTotal / this.listItemSize);
+            return this._list_item_size == 0 ? this.dsTotal : Math.ceil(this.dsTotal / this._list_item_size);
         }
     },
     props: {
@@ -250,12 +242,6 @@ export default {
         data: {
             default(){
                 return [];
-            }
-        },
-        /* 别名 */
-        alias: {
-            default(){
-                return {};
             }
         },
         /* 隐藏列自渲染槽名 */
@@ -277,6 +263,18 @@ export default {
         /* 数据等待model */
         value: {
             default: false
+        },
+        useCheck: {
+            default: false
+        },
+        is_edit: {
+            default: false
+        },
+        newRowBtnClass: {
+            default: ''
+        },
+        tableClass: {
+            default: ''
         }
     },
     watch: {
@@ -295,28 +293,39 @@ export default {
     },
     async mounted () {
         if(this.init) {
-            this.render(await this.getData());
+            this.render(await this.fetchData());
         }
         window.addEventListener('resize', this.listenCard);
     },
     methods: {
+        editNewRow(){
+            let tmp = {};
+            this.ths.forEach(v => {
+                if(v.field) {
+                    tmp[v.field] = v.default_value;
+                }
+            });
+            this.ds.push(this.itemInit(tmp, this.dsTotal));
+            this.dsTotal++;
+        },
         /* 刷新表格 */
         async refresh(){
-            this.render(await this.getData());
+            this.render(await this.fetchData());
         },
         /* 排序刷新 */
         async toSort(field, order) {
             this.sort = [field, order];
-            this.render(await this.getData());
+            this.render(await this.fetchData());
         },
         /* 获取数据 */
-        async getData(){
+        async fetchData(){
             /* 异步获取 */
             if(this.url !== '') {
                 this.ds = [];
-                return await this.$refs.treeLoading.wait(async () => {
-                    return await this.fetch();
-                });
+                this.loading = true;
+                let data = await this.fetch();
+                this.loading = false;
+                return data;
             }
             /* 本地数据 */
             return this.data;
@@ -326,14 +335,23 @@ export default {
             return {
                 orderField: this.sort[0],
                 orderBy: this.sort[1],
-                page: this.currentPage
+                page: this.currentPage,
+                start: (this.currentPage - 1) * this._list_item_size,
+                limit: this._list_item_size
             };
         },
         /* 切换页 */
         async changePage(n){
             this.currentPage = n;
             await this.$nextTick();
-            this.render(await this.getData());
+            this.render(await this.fetchData());
+        },
+        itemInit(item, index){
+            item[this.token] = index;
+            item.isCheck !== undefined && !!item.isCheck && this.checks.push(index);
+            
+            item.__td_wrapper_tpl = this.is_edit ? 'a-popover' : 'div';
+            return item;
         },
         /* 渲染 */
         async render(ds){
@@ -347,17 +365,24 @@ export default {
                 tmp.ds = ds.rows;
                 tmp.dsTotal = ds.total;
             }
-            this.ds = tmp.ds.map((v, i) => {
-                v[this.token] = i;
-                v.isCheck !== undefined && !!v.isCheck && this.checks.push(i);
-                return v;
-            });
+            tmp.ds = tmp.ds.map((v, i) => this.itemInit(v, i));
+            if(this.url == '' && this.sort[0] !== undefined) {
+                let field = this.ths.filter(v => {
+                    return v.field == this.sort[0]
+                });
+                let baseFunc = field.sortHandler ? field.sortHandler : () => (pre, next) => {
+                    let r = pre[this.sort[0]] > next[this.sort[0]]
+                    return !this.sort[1] ||this.sort[1] == 'asc' ? r : !r;
+                };
+                tmp.ds = tmp.ds.sort(baseFunc(this.sort));
+            }
+            this.ds = tmp.ds;
             this.dsTotal = tmp.dsTotal;
             this.listenCard();
         },
         /* 表格自渲染 */
-        fieldRender(slot, th, view){
-            return this.$scopedSlots[slot]({th, view});
+        fieldRender(slot, th, view, index, thIndex){
+            return this.$scopedSlots[slot]({th, view, index, thIndex});
         },
         /* 反转隐藏数据列显示 */
         toggleHide(index){
@@ -399,6 +424,9 @@ export default {
                 }
             });
         },
+        getData(){
+            return this.ds;
+        },
         /* 全选接口 */
         checkAll(){
             this.checks = this.viewer.map((v, i) => i);
@@ -415,7 +443,17 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+    .mxl-table-wrapper {
+        & .__edit-area {
+            display: flex;
+            margin-bottom: 10px;
+        }
+    }
+    .ant-popover {
+        //fix: bootstrap modal.
+        z-index:1050 !important;
+    }
     /* 收起按钮 */
     .hideToggleBtn {
         text-align: right;
@@ -432,10 +470,6 @@ export default {
     .noActiveSort {
         color: #cecece;
     }
-    /* 激活的排序 */
-    .activeSort {
-        color: #33CC33;
-    }
 
     .mxl-table-pagination-no-m {
         margin: 0;
@@ -443,6 +477,32 @@ export default {
 
     .mxl-table-no-data-alert {
         margin-bottom: 0;
+    }
+
+    .mxl-table-tbody td {
+        vertical-align: middle !important;
+    }
+
+    .mxl-table-th-sort:after, .mxl-table-th-sort:before {
+        position: absolute;
+        bottom: .9em;
+        display: block;
+        opacity: .3;
+    }
+
+    .mxl-table-th-sort:before {
+        right: 1em;
+        content: "\2191";
+    }
+
+    .mxl-table-th-sort:after {
+        right: .5em;
+        content: "\2193";
+    }
+
+    /* 激活的排序 */
+    .mxl-table-sort-desc:after, .mxl-table-sort-asc:before{
+        opacity: 1;
     }
 </style>
 

@@ -1,13 +1,12 @@
 <template>
     <div class="container-fluid"><!-- 栅格划分 -->
-        <div class="row" v-for="r in rs" :key="r">
-            <div :class="['col-'+ layoutModel +'-' + limit]" v-for="i in groups" :key="i" v-if="((r-1)*groups + i - 1) < childrenLen">
-                <mxl-render
-                    :render="(h) => slotRender(h, r, i)"
-                >
-                </mxl-render>
-            </div>
-        </div>
+        <mxl-row v-for="r in rs" :key="r">
+            <mxl-render
+                v-for="i in groups" :key="i" v-if="((r-1)*groups + i - 1) < childrenLen"
+                :render="(h) => slotRender(h, r, i, {layoutModel, size: limit})"
+            >
+            </mxl-render>
+        </mxl-row>
     </div>
 </template>
 
@@ -41,16 +40,15 @@
             }
         },
         methods: {
-            slotRender(h, r, i){
-                if(this.$slots.default === undefined) {return ''}
-                let s = this.$slots.default.filter(v => v.tag)[(r-1)*this.groups + i - 1];
-                if(!s) {return '';}
-                return h('div', [...this.$utils.tool.slotDeepClone([s], h)]);
+            slotRender(h, r, i, c){
+                return h('mxlCol', {
+                    props: c
+                }, [this.$utils.tool.getSlot(this.$slots.default, (r-1)*this.groups + i - 1, h)]);
             },
             getRs(){
                 if(this.$slots.default) {
                     this.labels = this.$slots.default.filter(v => v.tag != undefined);
-                    this.rs = Math.ceil(this.childrenLen/this.groups);
+                    this.rs = Math.ceil(this.labels.length/this.groups);
                 }
             },
             render(){

@@ -1,5 +1,5 @@
 <template>
-    <ul class="list-group">
+    <ul :class="['list-group', card ? 'list-group-flush' : '']">
         <mxl-render
             v-for="i in itemLen"
             :key="i"
@@ -20,6 +20,10 @@ export default {
         align: {
             type: String,
             default: 'left'
+        },
+        card: {
+            default: false,
+            type: Boolean
         }
     },
     mounted(){
@@ -27,15 +31,12 @@ export default {
     },
     methods: {
         slotRender(h, index){
-            if(this.$slots.default === undefined) {return ''}
-            let s = this.$slots.default.filter(v => v.tag)[index];
-            if(!s) {return ;}
             return h('li', {
                 class: ['list-group-item'],
                 style: {
                     textAlign: this.align
                 }
-            }, [...this.$utils.tool.slotDeepClone([s], h)]);
+            }, [this.$utils.tool.getSlot(this.$slots.default, index, h)]);
         },
         render(){
             this.getItemLen();

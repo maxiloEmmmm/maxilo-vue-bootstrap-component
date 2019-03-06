@@ -1,8 +1,10 @@
 <template>
 <form class="form-horizontal"><!-- 浮动表单 -->
     <div class="container-fluid"><!-- 栅格划分 -->
-        <div class="row" v-for="r in rs" :key="r">
-            <div :class="['col-'+ layoutModel +'-' + limit]" v-for="i in groups" :key="i" v-if="((r-1)*groups + i - 1) < childrenLen">
+        <div class="row" v-for="r in Math.ceil(($slots.default 
+                ? $slots.default.filter(v => v.tag).length
+                : 0) / groups)" :key="r">
+            <div :class="['col-'+ layoutModel +'-' + limit]" v-for="i in groups" :key="i">
                 <mxl-render
                     :render="(h) => slotRender(h, r, i)"
                 >
@@ -34,36 +36,22 @@
                 default: '3-9'
             }
         },
-        mounted(){
-            this.getRs();
-        },
         computed: {
             limit(){
                 return 12/this.groups;
-            },
-            childrenLen(){
-                return this.labels.length;
             }
         },
         methods: {
             slotRender(h, r, i){
-                if(this.$slots.default === undefined) {return ''}
-                let s = this.$slots.default.filter(v => v.tag != undefined)[(r-1)*this.groups + i - 1];
-                if(!s) {return '';}
+                let index = (r-1)*this.groups + i - 1;
                 return h('mxlFormGroup', {
                     props: {
                         layout: this.layout,
-                        label: this.labels[(r-1)*this.groups + i - 1]
+                        reLabel: this.$slots.default.filter(v => v.tag != undefined).map(v => v.componentOptions && v.componentOptions.children ? v.componentOptions.children[0].text : '')[index]
                     }
-                }, [...this.$utils.tool.slotDeepClone([s], h)]);
-            },
-            getRs(){
-                if(this.$slots.default === undefined) {return ''}
-                this.labels = this.$slots.default.filter(v => v.tag != undefined).map(v => v.componentOptions && v.componentOptions.children ? v.componentOptions.children[0].text : '');
-                this.rs = Math.ceil(this.childrenLen/this.groups);
+                }, [this.$utils.tool.getSlot(this.$slots.default, index, h)]);
             },
             render(){
-                this.getRs();
             }
         }
     };

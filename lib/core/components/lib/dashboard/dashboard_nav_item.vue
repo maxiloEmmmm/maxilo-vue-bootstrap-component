@@ -5,7 +5,7 @@
             <span class="nav-label">{{ _title }}</span>
             <span class="fa arrow" v-if="_hasChild"></span>
         </a>
-        <ul :class="['nav', `nav-${_level}-level`, 'collapse', active ? 'in' : '']" v-if="_hasChild">
+        <ul :class="['nav', `nav-${_level}-level`, 'collapse', active ? 'show' : '']" v-if="_hasChild">
             <mxl-dashboard-nav-item :item="child" v-for="(child, index) in _children" :key="index" :level="level+1" :alias="_alias"></mxl-dashboard-nav-item>
         </ul>
     </li>

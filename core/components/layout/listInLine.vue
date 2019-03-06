@@ -27,10 +27,7 @@
         },
         methods: {
             slotRender(h, i){
-                if(this.$slots.default === undefined) {return ''}
-                let s = this.$slots.default.filter(v => v.tag)[i];
-                if(!s) {return '';}
-                return h('li', {style: {marginBottom: '5px'}}, [...this.$utils.tool.slotDeepClone([s], h)]);
+                return h('a', {class: 'list-inline-item', style: {marginBottom: '5px'}}, [this.$utils.tool.getSlot(this.$slots.default, i, h)]);
             },
             getRs(){
                 if(this.$slots.default) {

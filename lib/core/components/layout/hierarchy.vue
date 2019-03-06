@@ -6,7 +6,7 @@
                 v-for="(item, itemIndex) in option" :key="itemIndex" 
                 @click.stop="touch(index, itemIndex)"
             >
-                <a href="javascript:void(0)">{{ item[_alias.label] }}</a>
+                <a href="javascript:void(0)" style="padding-right:1rem">{{ item[_alias.label] }}<span style="position: absolute;right:0;"><slot name="icon" :item="item"></slot></span></a>
             </li>
         </ul>
     </mxl-box>
@@ -33,23 +33,13 @@ export default {
         },
         alias: {
             default(){
-                return {
-                    label: 'label'
-                };
-            }
-        }
-    },
-    watch: {
-        options: {
-            deep: true,
-            handler(){
-                this.$refs.core.render();
+                return {};
             }
         }
     },
     computed:{
         _alias(){
-            return this.$utils._.merge(this.$mxl_bootstrap_component_adapter.alias.layout.hierarchy, this.alias);
+            return this.$utils._.merge({}, {label: 'label'}, this.alias);
         },
         children(){
             return {
@@ -78,7 +68,6 @@ export default {
         },
         setActive(a){
             this.active = a;
-            this.$refs.core.render();
         }
     }
 };

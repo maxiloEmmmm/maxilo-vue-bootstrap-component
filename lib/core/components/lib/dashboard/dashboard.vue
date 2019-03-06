@@ -3,10 +3,16 @@
         <mxl-loading v-model="loading"></mxl-loading>
         <template v-if="!loading">
             <!--左侧导航开始-->
-            <item-nav :items="items" ref="nav" :miniLogoText="miniLogoText"></item-nav>
+            <item-nav 
+                :nav_header_menu="nav.headerMenu" 
+                :itemAlias="nav.itemAlias" 
+                :items="nav.items" 
+                :role_name="nav.role_name"
+                :nick_name="nav.nick_name"
+                ref="nav" :miniLogoText="nav.miniLogoText"></item-nav>
             <!--左侧导航结束-->
             <!--右侧部分开始-->
-            <item-wrapper ref="wrapper">
+            <item-wrapper ref="wrapper" :initPage="initPage">
                 <template slot="header_right_bar">
                     <slot name="header_right"></slot>
                 </template>
@@ -63,14 +69,19 @@ export default {
         }
     },
     props: {
-        items: {
+        initPage: {
             default(){
                 return [];
             },
             type: Array
         },
-        miniLogoText: {
-            default: 'Power by maxilo.'
+        nav: {
+            role_name: '',
+            nick_name: '',
+            headerMenu: {},
+            items: [],
+            itemAlias: {},
+            miniLogoText: '',
         }
     },
     provide() {

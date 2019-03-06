@@ -3,24 +3,24 @@
         <template slot="tips">
             <slot name="tips"></slot>
         </template>
-        <div :class="['dropdown', active ? 'open' : '', 'mxl-select']">
+        <div :class="['dropdown', active ? 'show' : '', 'mxl-select']">
             <mxl-input-group>
-                <div class="form-control" @click.stop="toggle()" style="height:auto;min-width: 100px;">
+                <div :class="['form-control', _valid, disabled ? 'mxl-select-disabled' : '']" @click.stop="toggle()" style="height:auto;min-width: 100px;">
                     <template v-if="more">
                         <span v-for="(c, index) in checks" :key="index" class="mxl-select-item"><i class="fa fa-times" @click.stop="remove(c)"></i> | {{ dataKeyCache[c] }}</span>
                     </template>
                     <template v-else>
                         <span>{{ dataKeyCache[checks[0]] }}</span>
                     </template>
-                    <span class="mxl-select-item" style="background:#fff" v-show="checks.length == 0">{{ placeholder }}</span>
+                    <span v-show="checks.length == 0">{{ placeholder }}</span>
                 </div>
-                <mxl-btn-group :input="true">
-                    <div class="btn btn-default" style="border-top-right-radius:4px;border-bottom-right-radius:4px;" @click="reset" :style="[heightPadding]">清空</div>
+                <mxl-btn-group class="input-group-append">
+                    <button type="button" class="btn btn-primary" style="border-top-right-radius:4px;border-bottom-right-radius:4px;" @click="reset" :style="[heightPadding]" :disabled="disabled">清空</button>
                 </mxl-btn-group>
             </mxl-input-group>
-            <ul class="dropdown-menu" @click.stop="()=>{}" style="width:100%">
-                <li @click.stop="itemClick(index)" v-for="(i, index) in options" :key="index" :style="[checks.includes(i[_alias.value]) ? {background: '#cecece'} : {}]"><a href="#">{{i[_alias.label]}}</a></li>
-            </ul>
+            <div :class="['dropdown-menu', active ? 'show' : '']" @click.stop="()=>{}" style="width: 100%;overflow-x: scroll;" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item" href="#" @click.stop="itemClick(index)" v-for="(i, index) in options" :key="index" :style="[checks.includes(i[_alias.value]) ? {background: '#cecece'} : {}]">{{i[_alias.label]}}</a>
+            </div>
         </div>
     </mxl-form-componment-error-tip>
 </template>
@@ -51,6 +51,10 @@ export default {
         this.repairValue();
     },
     props: {
+        disabled: {
+            type: Boolean,
+            default: false
+        },
         placeholder: {
             default: ''
         },
@@ -89,6 +93,11 @@ export default {
             return {
                 padding: (!this.more || this.checks.length == 0 ? 6 : 8) +  'px 12px'
             }; 
+        },
+        _valid(){
+            return !this.$validator.flags[this._random_name] || !this.$validator.flags[this._random_name].validated 
+                ? '' 
+                : (this.errors.has(this._random_name) ? 'is-invalid' : 'is-valid');
         }
     },
     watch: {
@@ -104,11 +113,15 @@ export default {
             handler(){
                 this.repairValue();
             }
+        },
+        more(){
+            this.repairValue();
         }
     },
     methods: {
         /* 反转下拉菜单 */
         toggle(){
+            if(this.disabled) {return ;}
             this.active = !this.active;
 
             /* 单例展开: 是否全局只展开一个 */
@@ -152,6 +165,7 @@ export default {
         },
         /* 多选已选移除 */
         remove($v){
+            if(this.disabled) {return ;}
             this.checks = this.checks.filter(v => v != $v);
         },
         initBodyToggle(){
@@ -171,7 +185,9 @@ export default {
         /* 生成hash字典 */
         makeKeyCache(){
             this.options.forEach(element => {
-                if(!element[this._alias.value] || !element[this._alias.label]) {
+                if(element[this._alias.value] === undefined 
+                    || element[this._alias.value] === null
+                    || (element[this._alias.label]+"").length === 0) {
                     this.$utils.system.notice('[maxilo-vue-bootstrap-component - select | warning] one option is invalid');
                     console.log('invalid option: ', element);
                     return false;
@@ -181,6 +197,7 @@ export default {
         },
         /* 重置 */
         async reset(){
+            if(this.disabled) {return ;}
             this.checks = [];
             this.input();
             await this.$validator.reset();
@@ -213,8 +230,12 @@ export default {
             if(!this.more) {
                 eq = emit === this.value;
             }else {
-                let tmp = Array.isArray(this.value) ? this.value : (this.value ? [this.value] : []);
-                eq = new Set(tmp.filter(x => !(new Set(emit)).has(x))).size === 0;
+                let tmp = Array.isArray(this.value) ? this.value : (this.value !== '' || this.value !== undefined || this.value !== null ? [this.value] : []);
+                eq = tmp !== this.value 
+                        ? false 
+                        : emit.length == 0 && tmp.length == 0 
+                            ? true 
+                            : (emit.length == 0 && tmp.length != 0 ? false : new Set(emit.filter(x => !(new Set(tmp)).has(x))).size === 0);
             }
             if(!eq) {
                 this.$emit('input', emit);
@@ -236,5 +257,11 @@ export default {
         margin: 1px;
         display: inline-block;
     }
+
+    .mxl-select-disabled {
+        background-color: #e9ecef;
+        opacity: 1;
+    }
 </style>
+
 

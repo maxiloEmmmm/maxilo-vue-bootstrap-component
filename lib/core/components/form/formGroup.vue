@@ -1,5 +1,5 @@
 <template>
-    <div class="form-group">
+    <div class="form-group row">
         <label :for="tag" :class="labelClass" ref="core">{{ label }}</label>
         <div :class="[flow ? 'col-md-' + l[1] : '']">
             <slot></slot>
@@ -22,6 +22,9 @@
         props: {
             layout: {
                 default: '3-9'
+            },
+            reLabel: {
+                default: ''
             }
         },
         mounted(){
@@ -29,20 +32,23 @@
         },
         computed: {
             labelClass(){
-                return this.flow ? ['col-md-' + this.l[0], 'control-label'] : []
+                return this.flow ? ['col-md-' + this.l[0], 'form-control-label', 'text-right'] : []
             }
         },
         watch: {
             layout(){
                 this.render();
+            },
+            reLabel() {
+                this.label = this.reLabel;
             }
         },
         methods: {
             resetFlow(flow){
                 this.flow = flow;
-                this.c = flow ? ['col-md-' + this.l[0], 'control-label'] : [];
+                this.c = flow ? ['col-md-' + this.l[0], 'form-control-label', 'text-right'] : [];
             },
-            render(){
+            async render(){
                 let t = this.layout.split('-');
                 if(t.length == 1) {
                     this.l = [t[0], 12-t[0]];

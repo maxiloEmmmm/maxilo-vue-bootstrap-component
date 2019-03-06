@@ -58,18 +58,18 @@ export default {
     },
     methods: {
         /* 拉取数据 */
-        async fetch(){
+        async fetch(noCache = false){
             if(!this.url) {
                 return [];
             }
 
             try {
                 let params = {
-                    otherParams: this.getParams(),
+                    otherParams: this.getParams ? this.getParams() : {},
                     params: this._async.params
                 };
                 let paramHash = this.$utils.tool.md5(JSON.stringify(params));
-                if(this.useCache && this.cache[paramHash]) {
+                if(!noCache && this.useCache && this.cache[paramHash]) {
                     return this.cache[paramHash];
                 }else {
                     this.async_loading = true;

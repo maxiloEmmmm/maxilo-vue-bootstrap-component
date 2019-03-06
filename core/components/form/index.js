@@ -1,7 +1,6 @@
 import input from './input.vue';
 import inputGroup from './inputGroup.vue';
-import inputStatus from './inputStatus.vue';
-import inputBtn from './inputBtn.vue';
+import inputGroupText from './inputGroupText.vue';
 
 import dropMenu from './dropMenu.vue';
 
@@ -26,6 +25,7 @@ import formGroup from './formGroup.vue';
 import inlineFormGroup from './inlineFormGroup.vue';
 
 import checkbox from './checkbox.vue';
+import switchAlias from './switch.vue';
 
 export default {
     inlineForm,
@@ -35,8 +35,7 @@ export default {
 
     input,
     inputGroup,
-    inputStatus,
-    inputBtn,
+    inputGroupText,
 
     dropMenu,
 
@@ -45,6 +44,8 @@ export default {
     btnToolBar,
 
     select,
+
+    switch: switchAlias,
 
     cascade,
 

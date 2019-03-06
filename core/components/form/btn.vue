@@ -1,6 +1,6 @@
 <template>
-    <button type="button" :class="['btn', 'btn-' + type, _size]" @click="touch">
-        <i v-if="icon" :class="icon"></i><slot></slot>
+    <button type="button" :class="['btn', 'btn-' + (outline ? 'outline-' : '') + type, _size, block ? 'btn-block' : '']" @click="touch">
+        <slot></slot>
     </button>
 </template>
 
@@ -10,7 +10,6 @@ export default {
     computed: {
         _size(){
             return {
-                xs: 'btn-xs',
                 md: '',
                 lg: 'btn-lg',
                 sm: 'btn-sm',
@@ -18,14 +17,17 @@ export default {
         }
     },
     props: {
-        icon: {
-            default: ''
-        },
         size: {
             default: 'md'
         },
         type: {
-            default: 'default'
+            default: 'primary'
+        },
+        outline: {
+            default: false
+        },
+        block: {
+            default: false
         }
     },
     methods: {

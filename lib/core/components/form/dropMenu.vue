@@ -1,12 +1,11 @@
 <template>
-    <div :class="[btn ? 'btn-group' : 'dropdown', active ? 'open' : '']">
-        <button class="btn btn-default dropdown-toggle" type="button" @click.stop="toggle()">
+    <div :class="[btn ? 'btn-group' : 'dropdown', active ? 'show' : '']">
+        <button class="btn dropdown-toggle" :class="['btn-primary' + type, _size, split ? 'dropdown-toggle-split' : '']" type="button" @click.stop="toggle()">
             <slot></slot>
-            <span class="caret"></span>
         </button>
-        <ul class="dropdown-menu">
-            <li @click="itemClick($event, index)" v-for="(i, index) in menus" :key="index"><a href="javascript:void(0)">{{i.text}}</a></li>
-        </ul>
+        <div class="dropdown-menu" :class="active ? 'show' : ''">
+            <a class="dropdown-item" @click="itemClick($event, index)" v-for="(i, index) in menus" :key="index" href="javascript:void(0)">{{i.text}}</a>
+        </div>
     </div>
 </template>
 
@@ -27,6 +26,15 @@ export default {
         });
         this.initBodyToggle();
     },
+    computed: {
+        _size(){
+            return {
+                md: '',
+                lg: 'btn-lg',
+                sm: 'btn-sm',
+            }[this.size];
+        }  
+    },
     props: {
         menus: {
             default(){
@@ -42,6 +50,16 @@ export default {
             default: true
         },
         autoClickHide: {
+            default: true
+        },
+        type: {
+            default: 'primary',
+            type: String
+        },
+        size: {
+            default: 'md'
+        },
+        split: {
             default: true
         }
     },

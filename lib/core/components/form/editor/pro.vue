@@ -2,7 +2,6 @@
     <div ref="core"></div>
 </template>
 
-
 <script>
 import commonMix from './prop.vue';
 export default {
@@ -19,8 +18,14 @@ export default {
         },
         async init(){
             await this.getRelation();
-            this.instance = await this.relation.create(this.$refs.core);
-
+            try {
+                this.instance = await this.relation.create(this.$refs.core);
+                this.setDisabled();
+                this.repairHeight();
+            } catch (error) {
+                console.log(error);
+            }
+            
             this.setData(this.value);
 
             /* event */
@@ -33,16 +38,36 @@ export default {
             if(!this.instance) {
                 return ;
             }
-            this.instance.setData(v);
+            this.instance.getData() !== v && this.instance.setData(v);
+        },
+        setDisabled(){
+            if(this.instance) {
+                this.instance.isReadOnly = this.disabled;
+            }
         },
         async _reset(){
             this.setData('');
             this.change('');
             await this.$nextTick();
+        },
+        repairHeight(){
+            if(this.height !== false) {
+                this.instance.ui.view.editable.editableElement.style.height = this.height
+            }
         }
     },
     async mounted(){
         await this.init();
+    },
+    watch: {
+        height: {
+            handler(){
+                if(this.instance) {
+                    this.repairHeight();
+                }
+            },
+            immediate: true
+        }
     }
 }
 </script>

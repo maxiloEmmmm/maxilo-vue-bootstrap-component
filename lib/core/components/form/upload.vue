@@ -75,7 +75,6 @@ export default {
         async doUpload(){
             let readyFileList = this.hash.filter(v => v._s != this.fieldStatus.OK);
             let data = new window.FormData;
-            
         }
     }
 }

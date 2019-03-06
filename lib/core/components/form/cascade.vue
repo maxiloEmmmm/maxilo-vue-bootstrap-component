@@ -1,11 +1,15 @@
 <template>
     <div :class="['mxl-select']">
         <div class="form-control" @click.stop="toggle($event)" style="height:auto" ref="form">
-            <span class="mxl-select-item" style="background:#fff" v-show="checks.length == 0">{{ placeholder }}</span>
-            <span class="mxl-select-item" style="background:#fff;color:#000;">{{ view }}</span>
+            <span class="mxl-select-item" style="background:#fff;color:#000;" v-if="!_hasView">{{ placeholder }}</span>
+            <span class="mxl-select-item" style="background:#fff;color:#000;" v-else>{{ view }}</span>
         </div>
-        <mxl-modal :show="active">
-            <mxl-hierarchy :options="lists" ref="core" @touch="itemClick"></mxl-hierarchy>
+        <mxl-modal :show="active" :fullScreen="false" size="85">
+            <mxl-hierarchy :alias="_alias" :options="lists" ref="core" @touch="itemClick">
+                <template slot="icon" slot-scope="prop">
+                    <i class="fa" :class="'fa-chevron-' + (prop.item[_alias.hasChild] ? 'right' : '')"></i>
+                </template>
+            </mxl-hierarchy>
             <div slot="footer">
                 <mxl-btn @click="hide">终了</mxl-btn>
             </div>
@@ -50,7 +54,7 @@ export default {
     },
     props: {
         placeholder: {
-            default: ''
+            default: '请选择'
         },
         data: {
             default(){
@@ -86,16 +90,37 @@ export default {
     },
     computed:{
         _alias(){
-            return this.$utils._.merge(this.$mxl_bootstrap_component_adapter.alias.form.cascade, this.alias);
+            return this.$utils._.merge({}, {
+                label: 'label',
+                value: 'value',
+                hasChild: 'hasChild',
+                childs: 'childs',
+                requestPid: 'pid'
+            }, this.alias);
         },
         view(){
             return this.checks.map(v => v[this._alias.label]).join(' ' + this.split + ' ');
+        },
+        _hasView(){
+            return this.checks.length != 0;
         }
     },
     watch: {
         value: {
             deep: true,
             handler(){
+                this.repairValue();
+            }
+        },
+        data: {
+            deep: true,
+            handler(){
+                this.makeKeyCache(this.data);
+
+                /* 第一级别 */
+                if(this.data.length != 0) {
+                    this.lists = [this.data];
+                }
                 this.repairValue();
             }
         }
@@ -110,7 +135,7 @@ export default {
         async fetch(p = null){
             /* 从缓存抓取 */
             if(this.caches[p]) {
-                return this.caches[p].childs;
+                return this.caches[p][this._alias.childs];
             }else {
                 if(!this.url) {
                     console.log('[maxilo-vue-bootstrap-component - cascade | warning] want more child, but url is not defined, return empty Array.');

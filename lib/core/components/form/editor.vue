@@ -3,7 +3,7 @@
         <template slot="tips">
             <slot name="tips"></slot>
         </template>
-        <component :is="model" v-validate:model="rules" :name="_random_name" v-model="content" ref="editorInstance" @input="doInput"></component>
+        <component :is="model" v-validate:model="rules" :name="_random_name" v-model="content" ref="editorInstance" @input="doInput" :height="height" :disabled="disabled"></component>
     </mxl-form-componment-error-tip>
 </template>
 
@@ -41,6 +41,10 @@ export default {
         async reset(){
             await this._reset();
             await this.$nextTick();
+        },
+        async setDisabled(){
+            await this.$nextTick();
+            this.$refs.editorInstance.setDisabled();
         }
     },
     components: {

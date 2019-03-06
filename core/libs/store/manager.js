@@ -2,13 +2,15 @@ const state = {
     manager: {
         dropMenu: {
 
+        },
+        menu: {
         }
     },
     relations: {}
 };
 
 const getters = {
-    manager: state => state.manager
+    manager: state => state.manager,
 };
 
 const actions = {
@@ -16,7 +18,7 @@ const actions = {
         if (!state.relations[type]) {
             switch(type) {
                 case 'editor': {
-                    state.relations.editor = await import('@ckeditor/ckeditor5-build-classic');
+                    state.relations.editor = (await import('@ckeditor/ckeditor5-build-classic')).default;
                 }break;
             }
         }
@@ -25,11 +27,29 @@ const actions = {
 };
 
 const mutations = {
-    addDropMenu(state, payload){
-        state.manager.dropMenu[payload.uuid] = payload.instance;
+    addRelation(state, payload) {
+        state.relations[payload.key] = payload.relation;
     },
-    addRelation(state, key, relation){
-        state.relations[key] = relation;
+    hideDropMenu(state, dropMenuInstance){
+        state.manager.dropMenu[dropMenuInstance._uid] = dropMenuInstance;
+
+        if(dropMenuInstance._dorp_menu_single !== undefined && !!dropMenuInstance._dorp_menu_single) {
+            Object.keys(state.manager.dropMenu).forEach(v => {
+                if(v != dropMenuInstance._uid) {
+                    state.manager.dropMenu[v].hideDropMenu && state.manager.dropMenu[v].hideDropMenu();
+                }
+            });
+        }
+    },
+    menuMerge(state, payload){
+        if(state.manager.menu[payload.primaryKey] === undefined) {
+            state.manager.menu[payload.primaryKey] = {
+                class: {},
+                mode: {},
+                func: {}
+            };
+        }
+        Object.assign(state.manager.menu[payload.primaryKey], payload.data);
     }
 };
 

@@ -1,11 +1,12 @@
 <template>
-    <div style="display: table;max-width:100%;width:100%;">
-        <div v-for="(row, index) in rows" :key="index" :style="[{display: 'table-row'}]">
+    <div style="max-width:100%;width:100%;">
+        <div v-for="(row, index) in Math.ceil(($slots.default 
+                ? $slots.default.filter(v => v.tag).length
+                : 0) / _groups)" :key="index" :style="[{display: 'flex', flexWrap: 'wrap', width: '100%'}]">
             <mxl-render
-                v-for="(group, i) in groups"
+                v-for="(group, i) in _groups"
                 :key="i"
                 :render="h => {return slotRender(h, index, i);}"
-                v-if="groups*(row-1)+group <= slotNum"
             ></mxl-render>
         </div>
     </div>
@@ -25,44 +26,23 @@ export default {
             slotNum: 0
         };
     },
-    async mounted(){
-        this.render();
-    },
     computed: {
         percent(){
-            return Math.floor(100/this.groups) + '%';
+            return Math.floor(100/this._groups)+ '%';
+        },
+        _groups(){
+            return this.groups ? this.groups : 4;
         }
     },
     methods: {
         slotRender(h, row, col){
-            if(this.$slots.default === undefined) {return ''}
-            let s = this.$slots.default.filter(v => v.tag)[this.groups*row+col];
-            if(!s) {return '';}
             return h('div', {
                 style: {
-                    display: 'table-cell',
-                    width: this.percent,
+                    flex: `0 0 ${this.percent}`,
                     maxWidth: this.percent,
-                    verticalAlign: 'middle'
                 },
                 class: ['mxl-box-rules']
-            }, [...this.$utils.tool.slotDeepClone([s], h)]);
-        },
-        async getRowLength(){
-            await this.$nextTick();
-            if(this.$slots.default) {
-                this.rows = Math.ceil(this.$slots.default.filter(v => v.tag).length / this.groups);
-            }
-        },
-        async getSlotNum(){
-            await this.$nextTick();
-            if(this.$slots.default) {
-                this.slotNum = this.$slots.default.filter(v => v.tag).length;
-            }
-        },
-        render(){
-            this.getRowLength();
-            this.getSlotNum();
+            }, [this.$utils.tool.getSlot(this.$slots.default, this._groups*row+col, h)]);
         }
     }
 }

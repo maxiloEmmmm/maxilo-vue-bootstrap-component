@@ -17,7 +17,8 @@ export default {
     },
     computed: {
         _class(){
-            return `col-${this.layoutModel}-${this.size}`;
+            let layout = ['sm', 'md', 'lg', 'xl'].includes(this.layoutModel) ? `-${this.layoutModel}` : ''
+            return `col${layout}-${this.size}`;
         }
     }
 }

@@ -1,14 +1,8 @@
 <template>
-    <transition
-        name="custom-classes-transition"
-        enter-active-class="animated zoomIn"
-        leave-active-class="animated zoomOut"
-        :duration="{ enter: 1500, leave: 600 }">`
-        <div v-if="running" class="text-center" :style="{display: block ? 'block' : 'inline'}">
-            <i :class="['fa', 'fa-circle-o-notch', 'fa-spin', 'fa-fw', _size]"></i><br>
-            <small><slot></slot></small>
-        </div>
-    </transition>
+    <div v-if="running" class="text-center" :style="{display: block ? 'block' : 'inline'}">
+        <i :class="['fa', 'fa-'+theme, 'fa-spin', 'fa-fw', _size]"></i><br>
+        <small><slot></slot></small>
+    </div>
 </template>
 
 <script>
@@ -29,6 +23,9 @@ export default {
         },
         block: {
             default: true
+        },
+        theme: {
+            default: 'circle-o-notch'
         }
     },
     computed: {
@@ -42,8 +39,11 @@ export default {
         }
     },
     watch: {
-        value(){
-            this.running = this.value;
+        value: {
+            handler(){
+                this.running = this.value;
+            },
+            immediate: true
         }
     },
     methods: {

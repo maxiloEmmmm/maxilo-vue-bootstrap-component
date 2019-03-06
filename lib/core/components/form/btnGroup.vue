@@ -1,6 +1,6 @@
 <template>
-    <div :class="[input ? 'input-group-btn' : 'btn-group', _size]">
-        <mxl-btn v-for="(i, index) in btns" :key="index" :type="i.type ? i.type:'default'" :icon="i.icon" :size="size">
+    <div :class="['btn-group', _size]">
+        <mxl-btn v-for="(i, index) in btns" :key="index" :type="i.type ? i.type:'default'" :size="size">
             {{i.text ? i.text : ($utils._.isString(i + '') ? i : '')}}
         </mxl-btn>
         <slot></slot>
@@ -19,7 +19,6 @@ export default {
     computed: {
         _size(){
             return {
-                xs: 'btn-group-xs',
                 md: '',
                 lg: 'btn-group-lg',
                 sm: 'btn-group-sm',
@@ -34,9 +33,6 @@ export default {
         },
         size: {
             default: 'md'
-        },
-        input: {
-            default: false
         }
     },
     methods: {

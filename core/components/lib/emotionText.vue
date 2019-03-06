@@ -1,5 +1,5 @@
 <template>
-    <span :class="['label', 'label-' + type]"><slot></slot></span>
+    <span @click="$emit('click')" :class="['badge', 'badge-' + type]"><slot></slot></span>
 </template>
 
 <script>
