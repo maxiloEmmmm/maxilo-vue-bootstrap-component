@@ -1,6 +1,6 @@
 {
   "name": "maxilo-vue-bootstrap-component",
-  "version": "1.0.93",
+  "version": "1.0.94",
   "description": "vue component for pc",
   "main": "lib/index.js",
   "scripts": {
